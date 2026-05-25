@@ -1,0 +1,191 @@
+"use client";
+import React, { useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { motion, AnimatePresence } from "motion/react";
+import { useAppStore } from "@/store/useAppStore";
+import { Button } from "@/components/ds/Button";
+import { Icon } from "@/components/ds/Icon";
+import { springs } from "@/components/ds/springs";
+import { BOLETAS_SALIDA } from "@/lib/mockData";
+
+const ESTADO_COLOR: Record<string, { bg:string; text:string }> = {
+  Pendiente:   { bg:"var(--ds-color-yellow)",   text:"var(--ds-color-black)" },
+  Aprobado:    { bg:"var(--ds-color-green-100)", text:"var(--ds-color-black)" },
+  Denegado:    { bg:"var(--ds-color-red-100)",   text:"var(--ds-color-white)" },
+  Preparación: { bg:"#e8f0ff",                   text:"#3366cc" },
+  Transporte:  { bg:"#fff3d0",                   text:"#996600" },
+  Entregado:   { bg:"var(--ds-color-gray-100)",  text:"var(--ds-color-gray-500)" },
+};
+
+const PASOS = ["Solicitado","Preparación","Transporte","Entrega"];
+const PASO_IDX: Record<string, number> = {
+  Pendiente:0, Aprobado:0, Denegado:0, Preparación:1, Transporte:2, Entregado:3
+};
+
+export default function BoletaDetallePage() {
+  const router = useRouter();
+  const { id }  = useParams<{ id:string }>();
+  const { rol } = useAppStore();
+  const [localEstado, setLocalEstado] = useState<string | null>(null);
+
+  const boleta = BOLETAS_SALIDA.find((b) => b.id === id);
+  if (!boleta) return (
+    <div style={{ padding:32, textAlign:"center" }}>
+      <Icon name="info" size="lg" color="var(--ds-color-gray-300)" />
+      <p>Boleta no encontrada</p>
+      <Button label="Volver" color="black" size="sm" onClick={() => router.back()} />
+    </div>
+  );
+
+  const estado    = localEstado ?? boleta.estado;
+  const pasoIdx   = PASO_IDX[estado] ?? 0;
+  const colors    = ESTADO_COLOR[estado] ?? { bg:"var(--ds-color-gray-100)", text:"var(--ds-color-gray-500)" };
+
+  return (
+    <div style={{ display:"flex",flexDirection:"column",height:"100dvh",background:"var(--ds-color-surface)" }}>
+
+      {/* ── Topbar ── */}
+      <div style={{ background:"var(--ds-color-white)",padding:"var(--ds-space-6) var(--ds-space-4) var(--ds-space-4)",
+        borderBottom:"1px solid var(--ds-color-gray-100)" }}>
+        <div style={{ display:"flex",alignItems:"center",gap:"var(--ds-space-3)" }}>
+          <Button size="sm" color="white" layout="icon" icon="back" onClick={() => router.back()} ariaLabel="Volver" />
+          <div style={{ flex:1 }}>
+            <div style={{ fontWeight:700,fontSize:"var(--ds-font-size-body-md)" }}>{boleta.numero}</div>
+            <div style={{ fontSize:12,color:"var(--ds-color-gray-500)",marginTop:1 }}>{boleta.actividad}</div>
+          </div>
+          <span style={{ padding:"4px 12px",borderRadius:99,fontSize:12,fontWeight:700,
+            background:colors.bg,color:colors.text }}>
+            {estado}
+          </span>
+        </div>
+      </div>
+
+      <div style={{ flex:1,overflowY:"auto" }}>
+        {/* ── Progress ── */}
+        <div style={{ background:"var(--ds-color-white)",padding:"var(--ds-space-4)",
+          margin:"var(--ds-space-3) var(--ds-space-4) 0",borderRadius:"var(--ds-radius-lg)",
+          boxShadow:"var(--ds-shadow-01)" }}>
+          <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",position:"relative" }}>
+            <div style={{ position:"absolute",top:"50%",left:20,right:20,height:2,
+              background:"var(--ds-color-gray-100)",transform:"translateY(-50%)",zIndex:0 }} />
+            <div style={{ position:"absolute",top:"50%",left:20,height:2,zIndex:1,
+              background:"var(--ds-color-green-100)",transform:"translateY(-50%)",
+              width:`${(pasoIdx/(PASOS.length-1))*100}%`,
+              transition:"width 0.4s ease" }} />
+            {PASOS.map((paso, i) => {
+              const done    = i <= pasoIdx;
+              const current = i === pasoIdx;
+              return (
+                <div key={paso} style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:6,zIndex:2,flex:1 }}>
+                  <motion.div
+                    animate={{ scale: current ? 1.15 : 1, background: done ? "var(--ds-color-green-100)" : "var(--ds-color-gray-200)" }}
+                    transition={springs.completing}
+                    style={{ width:20,height:20,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center" }}
+                  >
+                    {done && <Icon name="check" size="sm" color="var(--ds-color-black)" />}
+                  </motion.div>
+                  <span style={{ fontSize:10,fontWeight:600,color:done?"var(--ds-color-black)":"var(--ds-color-gray-400)",
+                    letterSpacing:"0.25px",textAlign:"center",lineHeight:1.2 }}>
+                    {paso}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── Info ── */}
+        <div style={{ margin:"var(--ds-space-3) var(--ds-space-4) 0",background:"var(--ds-color-white)",
+          borderRadius:"var(--ds-radius-lg)",boxShadow:"var(--ds-shadow-01)",overflow:"hidden" }}>
+          {[
+            { label:"Número",    value:boleta.numero },
+            { label:"Actividad", value:boleta.actividad },
+            { label:"Fecha",     value:boleta.fecha },
+            { label:"Estado",    value:estado },
+          ].map(({ label, value }, i) => (
+            <div key={label} style={{ display:"flex",justifyContent:"space-between",alignItems:"center",
+              padding:"var(--ds-space-3) var(--ds-space-4)",
+              borderBottom: i < 3 ? "1px solid var(--ds-color-gray-100)" : "none" }}>
+              <span style={{ fontSize:"var(--ds-font-size-label)",color:"var(--ds-color-gray-500)",fontWeight:500 }}>{label}</span>
+              <span style={{ fontSize:"var(--ds-font-size-label)",fontWeight:600 }}>{value}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Materiales ── */}
+        <div style={{ margin:"var(--ds-space-3) var(--ds-space-4) 0" }}>
+          <div style={{ fontSize:"var(--ds-font-size-body-sm)",fontWeight:700,color:"var(--ds-color-gray-500)",
+            letterSpacing:"0.4px",textTransform:"uppercase",marginBottom:8 }}>
+            Materiales ({boleta.materiales.length})
+          </div>
+          <div style={{ background:"var(--ds-color-white)",borderRadius:"var(--ds-radius-lg)",
+            boxShadow:"var(--ds-shadow-01)",overflow:"hidden" }}>
+            {boleta.materiales.map((m, i) => (
+              <motion.div key={i}
+                initial={{ opacity:0,x:-8 }} animate={{ opacity:1,x:0 }}
+                transition={{ ...springs.expanding, delay:i*0.04 }}
+                style={{ display:"flex",alignItems:"center",justifyContent:"space-between",
+                  padding:"var(--ds-space-3) var(--ds-space-4)",
+                  borderBottom: i < boleta.materiales.length-1 ? "1px solid var(--ds-color-gray-100)" : "none" }}
+              >
+                <div style={{ flex:1,minWidth:0 }}>
+                  <div style={{ fontSize:"var(--ds-font-size-label)",fontWeight:500,
+                    whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis" }}>{m.desc}</div>
+                  <div style={{ fontSize:11,color:"var(--ds-color-gray-400)",marginTop:2 }}>{m.unidad}</div>
+                </div>
+                <span style={{ flexShrink:0,fontWeight:700,fontSize:"var(--ds-font-size-body-md)",
+                  marginLeft:16,color:"var(--ds-color-black)" }}>
+                  {m.cantidad}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Acciones por rol ── */}
+        <div style={{ padding:"var(--ds-space-4) var(--ds-space-4) calc(var(--ds-space-4) + 80px)",
+          display:"flex",flexDirection:"column",gap:"var(--ds-space-3)",marginTop:"var(--ds-space-3)" }}>
+
+          {/* Maestro: aprobar/denegar */}
+          {rol === "maestro" && estado === "Pendiente" && (
+            <motion.div style={{ display:"flex",gap:"var(--ds-space-3)" }}
+              initial={{ opacity:0,y:12 }} animate={{ opacity:1,y:0 }} transition={springs.expanding}>
+              <Button fullWidth color="green" layout="icon-left" icon="check" label="Aprobar"
+                onClick={() => setLocalEstado("Aprobado")} />
+              <Button fullWidth color="red" layout="icon-left" icon="close" label="Denegar"
+                onClick={() => setLocalEstado("Denegado")} />
+            </motion.div>
+          )}
+
+          {/* Bodeguero: preparar */}
+          {rol === "bodeguero" && estado === "Aprobado" && (
+            <motion.div initial={{ opacity:0,y:12 }} animate={{ opacity:1,y:0 }} transition={springs.expanding}>
+              <Button fullWidth color="green" layout="icon-left" icon="list" label="Preparar solicitud"
+                onClick={() => router.push(`/boletas/${id}/preparar`)} />
+            </motion.div>
+          )}
+
+          {/* Transportista: firmar entrega */}
+          {rol === "transportista" && estado === "Preparación" && (
+            <motion.div initial={{ opacity:0,y:12 }} animate={{ opacity:1,y:0 }} transition={springs.expanding}>
+              <Button fullWidth color="green" layout="icon-left" icon="check" label="Confirmar recepción"
+                onClick={() => router.push(`/boletas/${id}/firmar?rol=transportista`)} />
+            </motion.div>
+          )}
+
+          {/* Encargado: firmar recepción final */}
+          {rol === "encargado" && estado === "Transporte" && (
+            <motion.div initial={{ opacity:0,y:12 }} animate={{ opacity:1,y:0 }} transition={springs.expanding}>
+              <Button fullWidth color="green" layout="icon-left" icon="check" label="Confirmar entrega"
+                onClick={() => router.push(`/boletas/${id}/firmar?rol=encargado`)} />
+            </motion.div>
+          )}
+
+          {/* Volver siempre */}
+          <Button fullWidth color="white" layout="icon-left" icon="back" label="Volver"
+            onClick={() => router.back()} />
+        </div>
+      </div>
+    </div>
+  );
+}

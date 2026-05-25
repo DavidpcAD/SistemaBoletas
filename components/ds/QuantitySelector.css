@@ -1,0 +1,18 @@
+.ds-qty {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 99px;
+  padding: 4px 8px;
+  background: var(--ds-color-surface);
+}
+.ds-qty__btn {
+  width: 28px; height: 28px; border-radius: 50%; border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-weight: 700; font-size: 16px;
+  background: var(--ds-color-gray-200); color: var(--ds-color-gray-500);
+}
+.ds-qty__val {
+  min-width: 24px; text-align: center;
+  font-weight: 700; font-size: var(--ds-font-size-label);
+}

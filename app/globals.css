@@ -1,0 +1,212 @@
+@import "../components/ds/design-system.css";
+
+/* ── App shell ── */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 430px;
+  margin: 0 auto;
+  background: var(--ds-color-surface);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Bottom nav ── */
+.app-bottombar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  background: var(--ds-color-white);
+  border-top: 1px solid var(--ds-color-gray-100);
+  display: flex;
+  align-items: stretch;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  z-index: 100;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+}
+
+.app-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 0 8px;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: var(--ds-font-family);
+}
+
+/* ── Scrollable content above nav ── */
+.app-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--ds-space-3) var(--ds-space-4);
+  padding-bottom: calc(80px + var(--ds-space-4));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── SearchBar CSS ── */
+.ds-search-shell { position: relative; }
+.ds-search {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-2);
+  background: var(--ds-color-surface);
+  border-radius: var(--ds-radius-xl);
+  padding: 10px var(--ds-space-4);
+  border: 2px solid transparent;
+  transition: border-color 0.15s;
+}
+.ds-search:focus-within { border-color: var(--ds-color-green-100); }
+.ds-search__input {
+  flex: 1;
+  border: none;
+  background: none;
+  font-family: var(--ds-font-family);
+  font-size: var(--ds-font-size-label);
+  color: var(--ds-color-black);
+  outline: none;
+}
+.ds-search__input::placeholder { color: var(--ds-color-gray-400); }
+.ds-search__close {
+  border: none; background: none; cursor: pointer; padding: 0; display: flex;
+  color: var(--ds-color-gray-400);
+}
+.ds-search__panel {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  background: var(--ds-color-white); border-radius: var(--ds-radius-lg);
+  box-shadow: var(--ds-shadow-03-big); list-style: none; padding: 4px 0; margin: 0; z-index: 50;
+}
+.ds-search__hit {
+  width: 100%; border: none; background: none; cursor: pointer; text-align: left;
+  padding: 12px var(--ds-space-4); font-family: var(--ds-font-family);
+  font-size: var(--ds-font-size-label); color: var(--ds-color-black);
+}
+.ds-search__hit:hover { background: var(--ds-color-surface); }
+.ds-search__match { font-weight: 700; }
+
+/* ── Tabs filter bar ── */
+.ds-filter-bar {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.ds-filter-bar::-webkit-scrollbar { display: none; }
+
+.ds-filter-chip {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--ds-font-family);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  -webkit-tap-highlight-color: transparent;
+  background: var(--ds-color-green-100);
+  color: var(--ds-color-black);
+}
+.ds-filter-chip--disabled {
+  background: var(--ds-color-gray-100);
+  color: var(--ds-color-gray-400);
+}
+
+/* ── Sheet CSS ── */
+.ds-sheet {
+  position: fixed;
+  z-index: 200;
+  overflow: hidden;
+  cursor: pointer;
+}
+.ds-sheet__scrim {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 199;
+  border: none; cursor: pointer; width: 100%; height: 100%;
+}
+.ds-sheet__content {
+  display: flex; flex-direction: column; height: 100%;
+}
+.ds-sheet__handle {
+  display: flex; justify-content: center; padding: 12px;
+  flex-shrink: 0;
+}
+.ds-sheet__handle-btn {
+  border: none; background: none; cursor: pointer; padding: 4px;
+  display: flex; align-items: center; justify-content: center;
+  width: 40px; height: 4px; background: var(--ds-color-gray-200); border-radius: 99px;
+}
+.ds-sheet__body {
+  flex: 1; overflow-y: auto; padding: 0 var(--ds-space-4);
+}
+.ds-sheet__footer {
+  padding: var(--ds-space-4);
+  padding-bottom: calc(var(--ds-space-4) + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--ds-color-gray-100);
+  background: var(--ds-color-white);
+  flex-shrink: 0;
+}
+.ds-sheet__fab {
+  border: none; background: none; cursor: pointer;
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+}
+.ds-sheet__title-row {
+  display: flex; align-items: center; gap: var(--ds-space-3);
+  padding-bottom: var(--ds-space-4);
+}
+.ds-sheet__title {
+  font-size: var(--ds-font-size-subtitle); font-weight: 700; margin: 0;
+}
+.ds-sheet__avatar {
+  width: 48px; height: 48px; border-radius: var(--ds-radius-md);
+  background: var(--ds-color-green-100);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ds-sheet__pane { /* content wrapper */ }
+
+/* ── QuantitySelector ── */
+.ds-qty-selector {
+  display: inline-flex; align-items: center; gap: 4px;
+  border-radius: 99px; padding: 4px;
+}
+
+/* ── SelectionDropdown ── */
+.ds-dropdown { position: relative; }
+.ds-dropdown__trigger {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px var(--ds-space-4); background: var(--ds-color-surface);
+  border: 2px solid var(--ds-color-gray-200); border-radius: var(--ds-radius-lg);
+  cursor: pointer; font-family: var(--ds-font-family); font-size: var(--ds-font-size-label);
+  width: 100%; text-align: left;
+}
+.ds-dropdown__panel {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: var(--ds-color-white); border-radius: var(--ds-radius-lg);
+  box-shadow: var(--ds-shadow-03-big); z-index: 50; max-height: 240px; overflow-y: auto;
+}
+.ds-dropdown__item {
+  padding: 12px var(--ds-space-4); cursor: pointer; font-size: var(--ds-font-size-label);
+  border-bottom: 1px solid var(--ds-color-gray-100);
+}
+.ds-dropdown__item:last-child { border-bottom: none; }
+.ds-dropdown__item:hover { background: var(--ds-color-surface); }
+
+/* ── ToggleCards ── */
+.ds-toggle-cards { display: inline-flex; }
