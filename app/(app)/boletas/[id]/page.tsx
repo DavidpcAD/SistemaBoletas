@@ -146,25 +146,52 @@ export default function BoletaDetallePage() {
           </div>
           <div style={{ background:"var(--ds-color-white)",borderRadius:"var(--ds-radius-lg)",
             boxShadow:"var(--ds-shadow-01)",overflow:"hidden" }}>
-            {materiales.map((m, i) => (
-              <motion.div key={i}
-                initial={{ opacity:0,x:-8 }} animate={{ opacity:1,x:0 }}
-                transition={{ ...springs.expanding, delay:i*0.04 }}
-                style={{ display:"flex",alignItems:"center",justifyContent:"space-between",
-                  padding:"var(--ds-space-3) var(--ds-space-4)",
-                  borderBottom: i < materiales.length-1 ? "1px solid var(--ds-color-gray-100)" : "none" }}
-              >
-                <div style={{ flex:1,minWidth:0 }}>
-                  <div style={{ fontSize:"var(--ds-font-size-label)",fontWeight:500,
-                    whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis" }}>{String(m.Descripcion ?? "")}</div>
-                  <div style={{ fontSize:11,color:"var(--ds-color-gray-400)",marginTop:2 }}>{String(m.unitOfMeasureCode ?? "")}</div>
-                </div>
-                <span style={{ flexShrink:0,fontWeight:700,fontSize:"var(--ds-font-size-body-md)",
-                  marginLeft:16,color:"var(--ds-color-black)" }}>
-                  {String(m.quantity ?? "")}
-                </span>
-              </motion.div>
-            ))}
+            {materiales.map((m, i) => {
+              const solicitado = Number(m.quantity ?? 0);
+              const entregada  = Number(m.CantidadEntregada ?? 0);
+              const pct        = solicitado > 0 ? Math.min(entregada / solicitado, 1) : 0;
+              const completo   = solicitado > 0 && entregada >= solicitado;
+              const parcial    = entregada > 0 && !completo;
+              const barColor   = completo ? "#16a34a" : parcial ? "#d97706" : "var(--ds-color-gray-200)";
+              const pillBg     = completo ? "#dcfce7" : parcial ? "#FFF3CD" : "var(--ds-color-gray-100)";
+              const pillText   = completo ? "#15803d" : parcial ? "#92400e" : "var(--ds-color-gray-500)";
+              const pillLabel  = completo ? "✓ Completo" : parcial ? "⚠ Parcial" : "Pendiente";
+              return (
+                <motion.div key={i}
+                  initial={{ opacity:0,x:-8 }} animate={{ opacity:1,x:0 }}
+                  transition={{ ...springs.expanding, delay:i*0.04 }}
+                  style={{ padding:"var(--ds-space-3) var(--ds-space-4)",
+                    borderBottom: i < materiales.length-1 ? "1px solid var(--ds-color-gray-100)" : "none" }}
+                >
+                  {/* Header row */}
+                  <div style={{ display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8 }}>
+                    <div style={{ flex:1,minWidth:0 }}>
+                      <div style={{ fontSize:11,color:"var(--ds-color-gray-400)" }}>{String(m.itemNo ?? "")}</div>
+                      <div style={{ fontSize:13,fontWeight:500,marginTop:1 }}>{String(m.Descripcion ?? "")}</div>
+                    </div>
+                    <span style={{ padding:"2px 9px",borderRadius:99,fontSize:11,fontWeight:700,
+                      background:pillBg,color:pillText,flexShrink:0,whiteSpace:"nowrap" }}>
+                      {pillLabel}
+                    </span>
+                  </div>
+                  {/* Progress bar */}
+                  <div style={{ marginTop:8,height:4,borderRadius:99,
+                    background:"var(--ds-color-gray-100)",overflow:"hidden" }}>
+                    <div style={{ height:"100%",width:`${pct*100}%`,background:barColor,
+                      borderRadius:99,transition:"width 0.5s ease" }} />
+                  </div>
+                  {/* Counts */}
+                  <div style={{ display:"flex",justifyContent:"space-between",marginTop:4 }}>
+                    <span style={{ fontSize:11,color:"var(--ds-color-gray-400)" }}>
+                      {String(m.unitOfMeasureCode ?? "")}
+                    </span>
+                    <span style={{ fontSize:11,fontWeight:700,color:barColor }}>
+                      {entregada} / {solicitado}
+                    </span>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
 

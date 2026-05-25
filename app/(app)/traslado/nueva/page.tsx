@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAppStore } from "@/store/useAppStore";
 import { Topbar } from "@/components/app/Topbar";
 import { OBRAS, ITEMS_CATALOGO } from "@/lib/mockData";
+import { SlideToConfirm } from "@/components/ds/SlideToConfirm";
 
 export default function NuevoTrasladoPage() {
   const router = useRouter();
@@ -88,10 +89,13 @@ export default function NuevoTrasladoPage() {
           </div>
         )}
       </div>
-      <div className="app-bottombar">
-        <button className="ds-btn ds-btn--green ds-btn--full" onClick={handleGuardar} disabled={!obraDestino || lineas.length === 0 || saving}>
-          {saving ? "Guardando..." : "Crear traslado"}
-        </button>
+      <div className="app-bottombar" style={{ padding:"12px 16px" }}>
+        <SlideToConfirm
+          label={saving ? "Guardando..." : "Crear traslado"}
+          onConfirm={handleGuardar}
+          enabled={!!obraDestino && lineas.length > 0 && !saving}
+          successHoldMs={600}
+        />
       </div>
     </>
   );

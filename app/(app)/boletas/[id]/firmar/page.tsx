@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { FirmaDigital } from "@/components/app/FirmaDigital";
 import { Topbar } from "@/components/app/Topbar";
+import { SlideToConfirm } from "@/components/ds/SlideToConfirm";
 import { BOLETAS_SALIDA } from "@/lib/mockData";
 
 export default function FirmarBoletaPage() {
@@ -56,10 +57,13 @@ export default function FirmarBoletaPage() {
         )}
       </div>
       {firma && (
-        <div className="app-bottombar">
-          <button className="ds-btn ds-btn--green ds-btn--full" onClick={handleConfirmar} disabled={saving}>
-            {saving ? "Guardando..." : "Confirmar firma"}
-          </button>
+        <div className="app-bottombar" style={{ padding:"12px 16px" }}>
+          <SlideToConfirm
+            label={saving ? "Guardando..." : "Confirmar firma"}
+            onConfirm={handleConfirmar}
+            enabled={!saving}
+            successHoldMs={600}
+          />
         </div>
       )}
     </>

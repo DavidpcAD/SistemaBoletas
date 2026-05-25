@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAppStore } from "@/store/useAppStore";
 import { Topbar } from "@/components/app/Topbar";
+import { SlideToConfirm } from "@/components/ds/SlideToConfirm";
 
 interface Material {
   itemNo: string;
@@ -89,8 +90,9 @@ export default function PrepararPage() {
     <div style={{ display:"flex", flexDirection:"column", height:"100dvh", background:"var(--ds-color-surface)" }}>
       <Topbar title="Preparar Solicitud" subtitle={String(boleta.DetBSalida ?? id)} showBack />
 
+      {/* Scrollable content — extra bottom padding to clear fixed bar + nav */}
       <div style={{ flex:1, overflowY:"auto", padding:"var(--ds-space-4)",
-        paddingBottom:"calc(var(--ds-space-4) + 80px)" }}>
+        paddingBottom:"calc(var(--ds-space-4) + 160px)" }}>
 
         {/* Info */}
         <div style={{ background:"var(--ds-color-white)", borderRadius:"var(--ds-radius-lg)",
@@ -174,17 +176,27 @@ export default function PrepararPage() {
         )}
       </div>
 
-      {/* Bottom action */}
-      <div style={{ padding:"var(--ds-space-4)",
-        paddingBottom:"calc(var(--ds-space-4) + env(safe-area-inset-bottom))",
-        background:"var(--ds-color-white)", borderTop:"1px solid var(--ds-color-gray-100)" }}>
-        <button onClick={handleLanzar} disabled={saving}
-          style={{ width:"100%", padding:"var(--ds-space-4)", borderRadius:"var(--ds-radius-md)",
-            background: saving ? "var(--ds-color-gray-200)" : "var(--ds-color-green-100)",
-            border:"none", cursor: saving ? "default" : "pointer",
-            fontWeight:700, fontSize:"var(--ds-font-size-label)", color:"var(--ds-color-black)" }}>
-          {saving ? "Generando boleta de entrega..." : "Lanzar a transporte →"}
-        </button>
+      {/* Bottom action — fixed above the bottom nav (~68px) */}
+      <div style={{
+        position:"fixed", bottom:68, left:"50%", transform:"translateX(-50%)",
+        width:"100%", maxWidth:430,
+        padding:"var(--ds-space-3) var(--ds-space-4)",
+        background:"var(--ds-color-white)",
+        borderTop:"1px solid var(--ds-color-gray-100)",
+        zIndex:110,
+      }}>
+        {error && (
+          <div style={{ marginBottom:8, padding:"8px 12px", borderRadius:8,
+            background:"#FEE2E2", color:"#DC2626", fontSize:13, fontWeight:600, textAlign:"center" }}>
+            {error}
+          </div>
+        )}
+        <SlideToConfirm
+          label={saving ? "Generando entrega..." : "Lanzar a transporte →"}
+          onConfirm={handleLanzar}
+          successHoldMs={600}
+          enabled={!saving}
+        />
       </div>
     </div>
   );

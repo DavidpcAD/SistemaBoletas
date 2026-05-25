@@ -8,6 +8,7 @@ import { Icon } from "@/components/ds/Icon";
 import { SearchBar } from "@/components/ds/SearchBar";
 import { springs } from "@/components/ds/springs";
 import { haptic } from "@/components/ds/haptic";
+import { SlideToConfirm } from "@/components/ds/SlideToConfirm";
 
 type LineaMaterial = { itemNo: string; desc: string; unidad: string; cantidad: number };
 type Tarea = { IDTareaObra: number; TareaObra: string; NumTarea: string; Etapa: string };
@@ -249,12 +250,12 @@ export default function NuevaBoletaPage() {
             {saveError}
           </div>
         )}
-        <Button fullWidth
-          color={materiales.length > 0 && actividad ? "green" : "gray"}
-          state={materiales.length === 0 || !actividad || saving ? "disabled" : "standard"}
+        <SlideToConfirm
           label={saving ? "Guardando..." : `Guardar (${materiales.length} materiales)`}
-          layout="icon-right" icon="check"
-          onClick={handleGuardar} />
+          onConfirm={handleGuardar}
+          enabled={materiales.length > 0 && !!actividad && !saving}
+          successHoldMs={600}
+        />
       </div>
     </div>
   );

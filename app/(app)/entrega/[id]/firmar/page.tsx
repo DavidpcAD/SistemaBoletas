@@ -4,6 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import { useAppStore } from "@/store/useAppStore";
 import { FirmaDigital } from "@/components/app/FirmaDigital";
 import { Topbar } from "@/components/app/Topbar";
+import { SlideToConfirm } from "@/components/ds/SlideToConfirm";
 import { BOLETAS_ENTREGA } from "@/lib/mockData";
 
 export default function FirmarEntregaPage() {
@@ -61,10 +62,13 @@ export default function FirmarEntregaPage() {
         )}
       </div>
       {firma && (
-        <div className="app-bottombar">
-          <button className="ds-btn ds-btn--green ds-btn--full" onClick={handleConfirmar} disabled={saving}>
-            {saving ? "Guardando..." : "✅ Confirmar entrega"}
-          </button>
+        <div className="app-bottombar" style={{ padding:"12px 16px" }}>
+          <SlideToConfirm
+            label={saving ? "Guardando..." : "Confirmar entrega"}
+            onConfirm={handleConfirmar}
+            enabled={!saving}
+            successHoldMs={600}
+          />
         </div>
       )}
     </>
