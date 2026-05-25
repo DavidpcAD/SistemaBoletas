@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import sql from "mssql";
 import { getPool } from "@/lib/db";
 
-// GET /api/entrega?obraId=VV-A.01
+// GET /api/entrega?obraId=VV-A.01&boletaSalidaId=123
 export async function GET(req: NextRequest) {
   const obraId = req.nextUrl.searchParams.get("obraId");
+  const boletaSalidaId = req.nextUrl.searchParams.get("boletaSalidaId");
   try {
     const pool = await getPool();
     const request = pool.request();
@@ -16,7 +17,10 @@ export async function GET(req: NextRequest) {
         Observaciones, TaskNo
       FROM dbo.V_BoletaEntrega
     `;
-    if (obraId) {
+    if (boletaSalidaId) {
+      request.input("boletaSalidaId", sql.Int, parseInt(boletaSalidaId));
+      query += " WHERE IDBoletaSalida = @boletaSalidaId";
+    } else if (obraId) {
       request.input("obraId", sql.NVarChar, obraId);
       query += " WHERE IDObraBC = @obraId";
     }

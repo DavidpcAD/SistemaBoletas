@@ -2,21 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import sql from "mssql";
 import { getPool } from "@/lib/db";
 
-// GET /api/traslado?obraId=VV-A.01
+// GET /api/traslado?obraId=VV-A.01&entregaId=41
 export async function GET(req: NextRequest) {
   const obraId = req.nextUrl.searchParams.get("obraId");
+  const entregaId = req.nextUrl.searchParams.get("entregaId");
   try {
     const pool = await getPool();
     const request = pool.request();
     let query = `
       SELECT
-        IDTraslado, TrasladoNo, IDBoletaSalida, IDObraBC, IDObraBCDestino,
+        IDTraslado, TrasladoNo, IDBoletaSalida, IDEntrega, IDObraBC, IDObraBCDestino,
         FechaTraslado, Estado, TgEntregado, TgAnulada, TgDevolucion, TgAprobado,
         NomTraslado, NomRecibido, NomSolicitado, nomTareaOrigen, nomTareaDestino,
         taskNoOrigen, taskNoDestino, Observaciones
       FROM dbo.V_BoletaTraslado
     `;
-    if (obraId) {
+    if (entregaId) {
+      request.input("entregaId", sql.Int, parseInt(entregaId));
+      query += " WHERE IDEntrega = @entregaId";
+    } else if (obraId) {
       request.input("obraId", sql.NVarChar, obraId);
       query += " WHERE IDObraBC = @obraId OR IDObraBCDestino = @obraId";
     }

@@ -28,11 +28,20 @@ export default function BoletaDetallePage() {
   const [localEstado, setLocalEstado] = useState<string | null>(null);
   const [data, setData] = useState<{ boleta: Record<string,unknown>; materiales: Record<string,unknown>[] } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [entregas, setEntregas] = useState<Record<string,unknown>[]>([]);
 
   useEffect(() => {
     fetch(`/api/boletas/${id}`)
       .then(r => r.json())
-      .then(d => { setData(d); setLoading(false); })
+      .then(d => {
+        setData(d);
+        setLoading(false);
+        if (d.boleta?.IDBoletaSalida) {
+          fetch(`/api/entrega?boletaSalidaId=${d.boleta.IDBoletaSalida}`)
+            .then(r => r.json())
+            .then(e => setEntregas(e.data ?? []));
+        }
+      })
       .catch(() => setLoading(false));
   }, [id]);
 
@@ -157,6 +166,53 @@ export default function BoletaDetallePage() {
               </motion.div>
             ))}
           </div>
+        </div>
+
+        {/* ── Boletas de Entrega ── */}
+        <div style={{ margin:"var(--ds-space-3) var(--ds-space-4) 0" }}>
+          <div style={{ fontSize:"var(--ds-font-size-body-sm)",fontWeight:700,color:"var(--ds-color-gray-500)",
+            letterSpacing:"0.4px",textTransform:"uppercase",marginBottom:8 }}>
+            Entregas ({entregas.length})
+          </div>
+          {entregas.length === 0 ? (
+            <div style={{ background:"var(--ds-color-white)",borderRadius:"var(--ds-radius-lg)",
+              boxShadow:"var(--ds-shadow-01)",padding:"var(--ds-space-4)",textAlign:"center",
+              fontSize:13,color:"var(--ds-color-gray-400)" }}>
+              Sin boletas de entrega
+            </div>
+          ) : (
+            <div style={{ background:"var(--ds-color-white)",borderRadius:"var(--ds-radius-lg)",
+              boxShadow:"var(--ds-shadow-01)",overflow:"hidden" }}>
+              {entregas.map((e, i) => {
+                const eEstado = String(e.Estado ?? "Pendiente");
+                const eColors: Record<string,{bg:string;text:string}> = {
+                  Pendiente:{ bg:"var(--ds-color-yellow)",text:"var(--ds-color-black)" },
+                  EnCamino: { bg:"#fff3d0",text:"#996600" },
+                  Entregado:{ bg:"var(--ds-color-green-100)",text:"var(--ds-color-black)" },
+                  Parcial:  { bg:"#e8f0ff",text:"#3366cc" },
+                };
+                const ec = eColors[eEstado] ?? { bg:"var(--ds-color-gray-100)",text:"var(--ds-color-gray-500)" };
+                return (
+                  <div key={String(e.IDEntrega)}
+                    onClick={() => router.push(`/entrega/${e.IDEntrega}`)}
+                    style={{ display:"flex",alignItems:"center",justifyContent:"space-between",
+                      padding:"var(--ds-space-3) var(--ds-space-4)",cursor:"pointer",
+                      borderBottom: i < entregas.length-1 ? "1px solid var(--ds-color-gray-100)" : "none" }}>
+                    <div>
+                      <div style={{ fontWeight:600,fontSize:"var(--ds-font-size-label)" }}>{String(e.EntregaNo ?? e.IDEntrega)}</div>
+                      <div style={{ fontSize:11,color:"var(--ds-color-gray-400)",marginTop:2 }}>
+                        {String(e.FechaEntrega ?? "").slice(0,10)}{e.NomDespachado ? ` · ${e.NomDespachado}` : ""}
+                      </div>
+                    </div>
+                    <span style={{ padding:"3px 10px",borderRadius:99,fontSize:11,fontWeight:700,
+                      background:ec.bg,color:ec.text,flexShrink:0 }}>
+                      {eEstado === "EnCamino" ? "En Camino" : eEstado}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* ── Acciones por rol ── */}
