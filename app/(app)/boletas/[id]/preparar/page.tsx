@@ -46,7 +46,10 @@ export default function PrepararPage() {
   const updateCant = (itemNo: string, delta: number) =>
     setMateriales(prev => prev.map(m =>
       m.itemNo === itemNo
-        ? { ...m, cantPreparada: Math.max(0, Math.min(m.cantPreparada + delta, m.quantity)) }
+        ? { ...m, cantPreparada: Math.max(0, Math.min(
+            m.cantPreparada + delta,
+            Math.min(m.quantity, m.CantidadEntregable ?? m.quantity)
+          )) }
         : m
     ));
 
@@ -123,9 +126,17 @@ export default function PrepararPage() {
                 <div style={{ flex:1, minWidth:0 }}>
                   <div style={{ fontSize:11, color:"var(--ds-color-gray-400)" }}>{m.itemNo}</div>
                   <div style={{ fontSize:13, fontWeight:500 }}>{m.Descripcion}</div>
-                  <div style={{ fontSize:11, color:"var(--ds-color-gray-400)", marginTop:2 }}>
-                    Solicitado: <strong>{m.quantity} {m.unitOfMeasureCode}</strong>
-                    {m.CantidadEntregable != null && ` · Stock: ${m.CantidadEntregable}`}
+                  <div style={{ fontSize:11, marginTop:2 }}>
+                    <span style={{ color:"var(--ds-color-gray-400)" }}>Solicitado: <strong style={{ color:"var(--ds-color-black)" }}>{m.quantity} {m.unitOfMeasureCode}</strong></span>
+                    {m.CantidadEntregable != null && (
+                      <span style={{
+                        marginLeft:6,
+                        color: m.CantidadEntregable < m.quantity ? "#DC2626" : "#16a34a",
+                        fontWeight:600
+                      }}>
+                        · Stock: {m.CantidadEntregable}{m.CantidadEntregable < m.quantity ? " ⚠" : " ✓"}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div style={{ display:"flex", alignItems:"center", gap:8, flexShrink:0 }}>
