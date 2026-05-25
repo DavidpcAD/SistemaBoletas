@@ -13,7 +13,7 @@ type Rol = "encargado" | "maestro" | "bodeguero" | "transportista";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setRol, setUserEmail, setIdCol } = useAppStore();
+  const { setRol, setUserEmail, setIdCol, setUserName } = useAppStore();
   const [email, setEmail]         = useState("");
   const [password, setPassword]   = useState("");
   const [loading, setLoading]     = useState(false);
@@ -34,6 +34,7 @@ export default function LoginPage() {
       haptic.complete();
       setRol(data.rol as Rol);
       setUserEmail(data.correo);
+      setUserName(data.nombre ?? data.correo);
       setIdCol(data.IDCol);
       router.push("/obras");
     } catch {
