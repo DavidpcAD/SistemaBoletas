@@ -213,6 +213,20 @@ export default function BoletasPage() {
           })}
         </AnimatePresence>
       </div>
+
+      {/* ── FAB Nueva boleta (encargado) ── */}
+      {canCreate && (
+        <motion.button
+          initial={{ scale:0 }} animate={{ scale:1 }} transition={springs.expanding}
+          onClick={() => router.push("/boletas/nueva")}
+          style={{ position:"fixed",bottom:80,right:16,width:56,height:56,borderRadius:99,
+            background:"var(--ds-color-green-100)",border:"none",cursor:"pointer",
+            boxShadow:"0 4px 16px rgba(0,0,0,0.18)",display:"flex",alignItems:"center",
+            justifyContent:"center",zIndex:100,WebkitTapHighlightColor:"transparent" }}
+        >
+          <Icon name="plus" size="lg" color="var(--ds-color-black)" />
+        </motion.button>
+      )}
     </div>
   );
 }

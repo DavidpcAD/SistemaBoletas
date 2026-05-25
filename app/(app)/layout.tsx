@@ -11,10 +11,10 @@ import "@/components/ds/design-system.css";
 type NavItem = { href: string; icon: "home" | "boleta" | "entrega" | "traslado" | "list" | "folder"; label: string };
 
 const NAV_BY_ROL: Record<string, NavItem[]> = {
-  encargado:    [{ href:"/obras",icon:"home",label:"Obras"},{href:"/boletas",icon:"boleta",label:"Boletas"},{href:"/entrega",icon:"entrega",label:"Entregas"}],
-  maestro:      [{ href:"/obras",icon:"home",label:"Obras"},{href:"/boletas",icon:"boleta",label:"Boletas"},{href:"/aprobaciones",icon:"list",label:"Aprobar"}],
-  bodeguero:    [{ href:"/obras",icon:"home",label:"Obras"},{href:"/boletas",icon:"boleta",label:"Boletas"},{href:"/bodega",icon:"folder",label:"Bodega"}],
-  transportista:[{ href:"/obras",icon:"home",label:"Obras"},{href:"/entrega",icon:"entrega",label:"Entregas"},{href:"/traslado",icon:"traslado",label:"Traslados"}],
+  encargado:    [{ href:"/obras",  icon:"home",    label:"Obras"   }, { href:"/boletas",icon:"boleta",  label:"Boletas" }],
+  maestro:      [{ href:"/obras",  icon:"home",    label:"Obras"   }, { href:"/aprobaciones",icon:"list",label:"Aprobar"}],
+  bodeguero:    [{ href:"/boletas",icon:"boleta",  label:"Boletas" }, { href:"/bodega", icon:"folder",  label:"Bodega"  }],
+  transportista:[{ href:"/entrega",icon:"entrega", label:"Entregas"}, { href:"/traslado",icon:"traslado",label:"Traslados"}],
 };
 
 const ROL_LABEL: Record<string, string> = {

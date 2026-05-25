@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export interface Obra {
   id: string;
@@ -26,20 +27,33 @@ export interface AppState {
   reset: () => void;
 }
 
-export const useAppStore = create<AppState>((set) => ({
-  obraActual: null,
-  rol: null,
-  userEmail: null,
-  userName: null,
-  idCol: null,
-  isOnline: true,
-  pendingSync: 0,
-  setObraActual: (obra) => set({ obraActual: obra }),
-  setRol: (rol) => set({ rol }),
-  setUserEmail: (email) => set({ userEmail: email }),
-  setUserName: (name) => set({ userName: name }),
-  setIdCol: (id) => set({ idCol: id }),
-  setOnline: (v) => set({ isOnline: v }),
-  setPendingSync: (n) => set({ pendingSync: n }),
-  reset: () => set({ obraActual: null, rol: null, userEmail: null, userName: null, idCol: null }),
-}));
+export const useAppStore = create<AppState>()(
+  persist(
+    (set) => ({
+      obraActual: null,
+      rol: null,
+      userEmail: null,
+      userName: null,
+      idCol: null,
+      isOnline: true,
+      pendingSync: 0,
+      setObraActual: (obra) => set({ obraActual: obra }),
+      setRol: (rol) => set({ rol }),
+      setUserEmail: (email) => set({ userEmail: email }),
+      setUserName: (name) => set({ userName: name }),
+      setIdCol: (id) => set({ idCol: id }),
+      setOnline: (v) => set({ isOnline: v }),
+      setPendingSync: (n) => set({ pendingSync: n }),
+      reset: () => set({ obraActual: null, rol: null, userEmail: null, userName: null, idCol: null }),
+    }),
+    {
+      name: "boletas-auth",
+      partialize: (state) => ({
+        rol:       state.rol,
+        userEmail: state.userEmail,
+        userName:  state.userName,
+        idCol:     state.idCol,
+      }),
+    }
+  )
+);

@@ -36,7 +36,10 @@ export default function LoginPage() {
       setUserEmail(data.correo);
       setUserName(data.nombre ?? data.correo);
       setIdCol(data.IDCol);
-      router.push("/obras");
+      const dest = data.rol === "bodeguero" ? "/boletas"
+                 : data.rol === "transportista" ? "/entrega"
+                 : "/obras";
+      router.push(dest);
     } catch {
       setError("Error de conexión");
     } finally {
