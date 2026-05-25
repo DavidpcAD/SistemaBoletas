@@ -13,7 +13,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
         .query(`SELECT * FROM dbo.V_BoletaEntrega WHERE IDEntrega = @id`),
       pool.request()
         .input("id", sql.Int, parseInt(id))
-        .query(`SELECT * FROM dbo.V_BolentregaDET WHERE IDEntrega = @id`),
+        .query(`SELECT * FROM dbo.V_BoletaEntregaDET WHERE IDEntrega = @id`),
     ]);
     if (entResult.recordset.length === 0) {
       return NextResponse.json({ error: "No encontrado" }, { status: 404 });

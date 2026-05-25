@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { useAppStore } from "@/store/useAppStore";
@@ -7,7 +7,7 @@ import { SearchBar } from "@/components/ds/SearchBar";
 import { Icon } from "@/components/ds/Icon";
 import { springs } from "@/components/ds/springs";
 import { haptic } from "@/components/ds/haptic";
-import { OBRAS } from "@/lib/mockData";
+
 
 const ROL_ICON: Record<string, "user"|"list"|"folder"|"traslado"> = {
   encargado:"user", maestro:"list", bodeguero:"folder", transportista:"traslado"
@@ -17,18 +17,37 @@ const ROL_LABEL: Record<string, string> = {
   encargado:"Encargado", maestro:"Maestro de obras", bodeguero:"Bodeguero", transportista:"Transportista"
 };
 
+type ObraDB = { IDObraBC: string; Proyecto: string | null };
+
 export default function ObrasPage() {
   const router    = useRouter();
-  const { obraActual, setObraActual, rol, userEmail } = useAppStore();
+  const { obraActual, setObraActual, rol, userEmail, idCol } = useAppStore();
   const [search, setSearch]   = useState("");
   const [pressed, setPressed] = useState<string|null>(null);
+  const [obras, setObras]     = useState<ObraDB[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = OBRAS.filter((o) =>
-    o.numero.toLowerCase().includes(search.toLowerCase()) ||
-    o.descripcion.toLowerCase().includes(search.toLowerCase())
-  );
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (idCol) params.set("idCol", String(idCol));
+    fetch(`/api/obras?${params}`)
+      .then(r => r.json())
+      .then(d => { setObras(d.data ?? []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [idCol]);
 
-  const handleSelect = (obra: typeof OBRAS[0]) => {
+  const filtered = obras
+    .map(o => ({
+      id:          o.IDObraBC,
+      numero:      o.IDObraBC,
+      descripcion: o.Proyecto ?? o.IDObraBC,
+    }))
+    .filter(o =>
+      o.numero.toLowerCase().includes(search.toLowerCase()) ||
+      o.descripcion.toLowerCase().includes(search.toLowerCase())
+    );
+
+  const handleSelect = (obra: { id: string; numero: string; descripcion: string }) => {
     haptic.select();
     setObraActual(obra);
     setTimeout(() => {
@@ -80,7 +99,10 @@ export default function ObrasPage() {
 
       {/* ── List ── */}
       <div style={{ padding:"var(--ds-space-3) var(--ds-space-4)", display:"flex", flexDirection:"column", gap:8 }}>
-        {filtered.length === 0 && (
+        {loading && (
+          <div style={{ textAlign:"center",padding:32,color:"var(--ds-color-gray-400)" }}>Cargando obras...</div>
+        )}
+        {!loading && filtered.length === 0 && (
           <motion.div
             initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={springs.expanding}
             style={{ textAlign:"center",padding:"40px 0",color:"var(--ds-color-gray-400)" }}

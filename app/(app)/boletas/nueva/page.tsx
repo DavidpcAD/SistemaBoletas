@@ -8,15 +8,16 @@ import { Icon } from "@/components/ds/Icon";
 import { SearchBar } from "@/components/ds/SearchBar";
 import { springs } from "@/components/ds/springs";
 import { haptic } from "@/components/ds/haptic";
-import { ITEMS_CATALOGO } from "@/lib/mockData";
 
 type LineaMaterial = { itemNo: string; desc: string; unidad: string; cantidad: number };
 type Tarea = { IDTareaObra: number; TareaObra: string; NumTarea: string; Etapa: string };
+type CatalogoItem = { itemNo: string; Descripcion: string; unitOfMeasureCode: string };
 
 export default function NuevaBoletaPage() {
   const router = useRouter();
   const { obraActual, idCol } = useAppStore();
   const [tareas, setTareas]       = useState<Tarea[]>([]);
+  const [catalogo, setCatalogo]   = useState<CatalogoItem[]>([]);
   const [actividad, setActividad] = useState("");
   const [tareaKey, setTareaKey]   = useState(""); // NumTarea key
   const [searchItem, setSearchItem] = useState("");
@@ -31,19 +32,29 @@ export default function NuevaBoletaPage() {
     fetch("/api/actividades")
       .then((r) => r.json())
       .then((j) => setTareas(j.data ?? []))
-      .catch(() => {/* silently fail, catalog still works */});
+      .catch(() => {});
   }, []);
 
-  const suggestions = ITEMS_CATALOGO.filter((i) =>
-    i.desc.toLowerCase().includes(searchItem.toLowerCase()) && searchItem.length > 1
-  ).slice(0, 6);
+  // Load items catalog from DB (debounced by searchItem)
+  useEffect(() => {
+    if (searchItem.length < 2) { setCatalogo([]); return; }
+    const timer = setTimeout(() => {
+      fetch(`/api/items?q=${encodeURIComponent(searchItem)}`)
+        .then(r => r.json())
+        .then(j => setCatalogo(j.data ?? []))
+        .catch(() => {});
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchItem]);
 
-  const addItem = (item: typeof ITEMS_CATALOGO[0]) => {
+  const suggestions = catalogo.slice(0, 6);
+
+  const addItem = (item: CatalogoItem) => {
     haptic.select();
     setMateriales((prev) => {
       const exists = prev.find((m) => m.itemNo === item.itemNo);
       if (exists) return prev.map((m) => m.itemNo === item.itemNo ? { ...m, cantidad: m.cantidad + 1 } : m);
-      return [...prev, { itemNo: item.itemNo, desc: item.desc, unidad: item.unidad, cantidad: 1 }];
+      return [...prev, { itemNo: item.itemNo, desc: item.Descripcion, unidad: item.unitOfMeasureCode, cantidad: 1 }];
     });
     setSearchItem(""); setShowSugs(false);
   };
@@ -168,8 +179,8 @@ export default function NuevaBoletaPage() {
                           cursor:"pointer", padding:"10px var(--ds-space-4)",
                           fontFamily:"var(--ds-font-family)", fontSize:"var(--ds-font-size-label)" }}
                       >
-                        <div style={{ fontWeight:500 }}>{s.desc}</div>
-                        <div style={{ fontSize:11, color:"var(--ds-color-gray-400)", marginTop:2 }}>{s.unidad}</div>
+                        <div style={{ fontWeight:500 }}>{s.Descripcion}</div>
+                        <div style={{ fontSize:11, color:"var(--ds-color-gray-400)", marginTop:2 }}>{s.unitOfMeasureCode}</div>
                       </button>
                     </li>
                   ))}
