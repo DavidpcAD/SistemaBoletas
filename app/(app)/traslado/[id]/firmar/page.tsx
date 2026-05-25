@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { FirmaDigital } from "@/components/app/FirmaDigital";
 import { Topbar } from "@/components/app/Topbar";
-import { SlideToConfirm } from "@/components/ds/SlideToConfirm";
+import { SlideButton } from "@/components/ds/SlideButton";
 import { BOLETAS_TRASLADO } from "@/lib/mockData";
 
 export default function FirmarTrasladoPage() {
@@ -54,12 +54,13 @@ export default function FirmarTrasladoPage() {
         )}
       </div>
       {firma && (
-        <div className="app-bottombar" style={{ padding:"12px 16px" }}>
-          <SlideToConfirm
+        <div className="app-bottombar" style={{ padding:"12px 16px", justifyContent:"center" }}>
+          <SlideButton
             label={saving ? "Guardando..." : tipo === "origen" ? "Iniciar traslado" : "Confirmar llegada"}
+            confirmedLabel="¡Confirmado!"
             onConfirm={handleConfirmar}
-            enabled={!saving}
-            successHoldMs={600}
+            disabled={saving}
+            confirmedHoldMs={1000}
           />
         </div>
       )}

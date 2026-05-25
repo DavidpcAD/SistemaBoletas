@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAppStore } from "@/store/useAppStore";
 import { Topbar } from "@/components/app/Topbar";
-import { SlideToConfirm } from "@/components/ds/SlideToConfirm";
+import { SlideButton } from "@/components/ds/SlideButton";
 
 interface Material {
   itemNo: string;
@@ -191,11 +191,12 @@ export default function PrepararPage() {
             {error}
           </div>
         )}
-        <SlideToConfirm
-          label={saving ? "Generando entrega..." : "Lanzar a transporte →"}
+        <SlideButton
+          label={saving ? "Generando entrega..." : "Lanzar a transporte"}
+          confirmedLabel="¡En camino!"
           onConfirm={handleLanzar}
-          successHoldMs={600}
-          enabled={!saving}
+          disabled={saving}
+          confirmedHoldMs={1200}
         />
       </div>
     </div>

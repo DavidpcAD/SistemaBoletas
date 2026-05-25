@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAppStore } from "@/store/useAppStore";
 import { Topbar } from "@/components/app/Topbar";
 import { OBRAS, ITEMS_CATALOGO } from "@/lib/mockData";
-import { SlideToConfirm } from "@/components/ds/SlideToConfirm";
+import { SlideButton } from "@/components/ds/SlideButton";
 
 export default function NuevoTrasladoPage() {
   const router = useRouter();
@@ -89,12 +89,13 @@ export default function NuevoTrasladoPage() {
           </div>
         )}
       </div>
-      <div className="app-bottombar" style={{ padding:"12px 16px" }}>
-        <SlideToConfirm
+      <div className="app-bottombar" style={{ padding:"12px 16px", justifyContent:"center" }}>
+        <SlideButton
           label={saving ? "Guardando..." : "Crear traslado"}
+          confirmedLabel="¡Creado!"
           onConfirm={handleGuardar}
-          enabled={!!obraDestino && lineas.length > 0 && !saving}
-          successHoldMs={600}
+          disabled={!obraDestino || lineas.length === 0 || saving}
+          confirmedHoldMs={800}
         />
       </div>
     </>

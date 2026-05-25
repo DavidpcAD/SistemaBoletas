@@ -8,7 +8,7 @@ import { Icon } from "@/components/ds/Icon";
 import { SearchBar } from "@/components/ds/SearchBar";
 import { springs } from "@/components/ds/springs";
 import { haptic } from "@/components/ds/haptic";
-import { SlideToConfirm } from "@/components/ds/SlideToConfirm";
+import { SlideButton } from "@/components/ds/SlideButton";
 
 type LineaMaterial = { itemNo: string; desc: string; unidad: string; cantidad: number };
 type Tarea = { IDTareaObra: number; TareaObra: string; NumTarea: string; Etapa: string };
@@ -250,11 +250,12 @@ export default function NuevaBoletaPage() {
             {saveError}
           </div>
         )}
-        <SlideToConfirm
+        <SlideButton
           label={saving ? "Guardando..." : `Guardar (${materiales.length} materiales)`}
+          confirmedLabel="¡Guardado!"
           onConfirm={handleGuardar}
-          enabled={materiales.length > 0 && !!actividad && !saving}
-          successHoldMs={600}
+          disabled={materiales.length === 0 || !actividad || saving}
+          confirmedHoldMs={800}
         />
       </div>
     </div>
