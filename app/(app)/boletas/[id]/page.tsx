@@ -1,12 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { useAppStore } from "@/store/useAppStore";
 import { Button } from "@/components/ds/Button";
 import { Icon } from "@/components/ds/Icon";
 import { springs } from "@/components/ds/springs";
-import { BOLETAS_SALIDA } from "@/lib/mockData";
 
 const ESTADO_COLOR: Record<string, { bg:string; text:string }> = {
   Pendiente:   { bg:"var(--ds-color-yellow)",   text:"var(--ds-color-black)" },
@@ -27,9 +26,23 @@ export default function BoletaDetallePage() {
   const { id }  = useParams<{ id:string }>();
   const { rol } = useAppStore();
   const [localEstado, setLocalEstado] = useState<string | null>(null);
+  const [data, setData] = useState<{ boleta: Record<string,unknown>; materiales: Record<string,unknown>[] } | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const boleta = BOLETAS_SALIDA.find((b) => b.id === id);
-  if (!boleta) return (
+  useEffect(() => {
+    fetch(`/api/boletas/${id}`)
+      .then(r => r.json())
+      .then(d => { setData(d); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [id]);
+
+  if (loading) return (
+    <div style={{ padding:32, textAlign:"center" }}>
+      <p>Cargando...</p>
+    </div>
+  );
+
+  if (!data?.boleta) return (
     <div style={{ padding:32, textAlign:"center" }}>
       <Icon name="info" size="lg" color="var(--ds-color-gray-300)" />
       <p>Boleta no encontrada</p>
@@ -37,7 +50,11 @@ export default function BoletaDetallePage() {
     </div>
   );
 
-  const estado    = localEstado ?? boleta.estado;
+  const { boleta, materiales } = data;
+  const numero    = String(boleta.DetBSalida ?? boleta.IDBoletaSalida);
+  const actividad = String(boleta.TareaObra ?? "");
+  const fecha     = String(boleta.FechaStr ?? "");
+  const estado    = localEstado ?? String(boleta.Estado ?? "Pendiente");
   const pasoIdx   = PASO_IDX[estado] ?? 0;
   const colors    = ESTADO_COLOR[estado] ?? { bg:"var(--ds-color-gray-100)", text:"var(--ds-color-gray-500)" };
 
@@ -50,8 +67,8 @@ export default function BoletaDetallePage() {
         <div style={{ display:"flex",alignItems:"center",gap:"var(--ds-space-3)" }}>
           <Button size="sm" color="white" layout="icon" icon="back" onClick={() => router.back()} ariaLabel="Volver" />
           <div style={{ flex:1 }}>
-            <div style={{ fontWeight:700,fontSize:"var(--ds-font-size-body-md)" }}>{boleta.numero}</div>
-            <div style={{ fontSize:12,color:"var(--ds-color-gray-500)",marginTop:1 }}>{boleta.actividad}</div>
+            <div style={{ fontWeight:700,fontSize:"var(--ds-font-size-body-md)" }}>{numero}</div>
+            <div style={{ fontSize:12,color:"var(--ds-color-gray-500)",marginTop:1 }}>{actividad}</div>
           </div>
           <span style={{ padding:"4px 12px",borderRadius:99,fontSize:12,fontWeight:700,
             background:colors.bg,color:colors.text }}>
@@ -98,9 +115,9 @@ export default function BoletaDetallePage() {
         <div style={{ margin:"var(--ds-space-3) var(--ds-space-4) 0",background:"var(--ds-color-white)",
           borderRadius:"var(--ds-radius-lg)",boxShadow:"var(--ds-shadow-01)",overflow:"hidden" }}>
           {[
-            { label:"Número",    value:boleta.numero },
-            { label:"Actividad", value:boleta.actividad },
-            { label:"Fecha",     value:boleta.fecha },
+            { label:"Número",    value:numero },
+            { label:"Actividad", value:actividad },
+            { label:"Fecha",     value:fecha },
             { label:"Estado",    value:estado },
           ].map(({ label, value }, i) => (
             <div key={label} style={{ display:"flex",justifyContent:"space-between",alignItems:"center",
@@ -116,26 +133,26 @@ export default function BoletaDetallePage() {
         <div style={{ margin:"var(--ds-space-3) var(--ds-space-4) 0" }}>
           <div style={{ fontSize:"var(--ds-font-size-body-sm)",fontWeight:700,color:"var(--ds-color-gray-500)",
             letterSpacing:"0.4px",textTransform:"uppercase",marginBottom:8 }}>
-            Materiales ({boleta.materiales.length})
+            Materiales ({materiales.length})
           </div>
           <div style={{ background:"var(--ds-color-white)",borderRadius:"var(--ds-radius-lg)",
             boxShadow:"var(--ds-shadow-01)",overflow:"hidden" }}>
-            {boleta.materiales.map((m, i) => (
+            {materiales.map((m, i) => (
               <motion.div key={i}
                 initial={{ opacity:0,x:-8 }} animate={{ opacity:1,x:0 }}
                 transition={{ ...springs.expanding, delay:i*0.04 }}
                 style={{ display:"flex",alignItems:"center",justifyContent:"space-between",
                   padding:"var(--ds-space-3) var(--ds-space-4)",
-                  borderBottom: i < boleta.materiales.length-1 ? "1px solid var(--ds-color-gray-100)" : "none" }}
+                  borderBottom: i < materiales.length-1 ? "1px solid var(--ds-color-gray-100)" : "none" }}
               >
                 <div style={{ flex:1,minWidth:0 }}>
                   <div style={{ fontSize:"var(--ds-font-size-label)",fontWeight:500,
-                    whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis" }}>{m.desc}</div>
-                  <div style={{ fontSize:11,color:"var(--ds-color-gray-400)",marginTop:2 }}>{m.unidad}</div>
+                    whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis" }}>{String(m.Descripcion ?? "")}</div>
+                  <div style={{ fontSize:11,color:"var(--ds-color-gray-400)",marginTop:2 }}>{String(m.unitOfMeasureCode ?? "")}</div>
                 </div>
                 <span style={{ flexShrink:0,fontWeight:700,fontSize:"var(--ds-font-size-body-md)",
                   marginLeft:16,color:"var(--ds-color-black)" }}>
-                  {m.cantidad}
+                  {String(m.quantity ?? "")}
                 </span>
               </motion.div>
             ))}
